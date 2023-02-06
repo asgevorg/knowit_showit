@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "491000008053",
+    "project_id": "know-it-show-it",
+    "storage_bucket": "know-it-show-it.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:491000008053:android:e62dd749d31f64d640973c",
+        "android_client_info": {
+          "package_name": "com.example.know_it_show_it"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "491000008053-k96eu4dl1m9vc6bnfu6arsjpoodk1h8b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXx5tuWl6MZzItlImHIT93te3mMHHhsdE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "491000008053-k96eu4dl1m9vc6bnfu6arsjpoodk1h8b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
