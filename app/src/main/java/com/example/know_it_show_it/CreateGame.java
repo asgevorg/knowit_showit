@@ -43,6 +43,7 @@ public class CreateGame extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 db.collection("games").document(generate_token()).set(game);
+
             }
         });
     }
