@@ -73,6 +73,7 @@ public class CreateGame extends AppCompatActivity {
                     }else{
                         db.collection("sessions").document(session.getGamePin())
                                 .set(session);
+                        switch_to_main_game();
                     }
                 }
             }

@@ -5,8 +5,9 @@
       <map>
         <entry key="../know_it_show_it/app/src/main/res/layout/activity_create_game.xml" value="0.30520833333333336" />
         <entry key="../know_it_show_it/app/src/main/res/layout/activity_game_enter.xml" value="0.30520833333333336" />
-        <entry key="../know_it_show_it/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="../know_it_show_it/app/src/main/res/layout/activity_main.xml" value="0.26361694335937497" />
         <entry key="../know_it_show_it/app/src/main/res/layout/activity_shr_product_grid_fragment.xml" value="0.24320652173913043" />
+        <entry key="../know_it_show_it/app/src/main/res/layout/navbar.xml" value="0.302536231884058" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.21878509521484377" />
       </map>
     </option>

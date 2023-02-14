@@ -17,9 +17,6 @@
         android:theme="@style/Theme.Know_it_show_it"
         tools:targetApi="31">
         <activity
-            android:name=".shr_product_grid_fragment"
-            android:exported="false" />
-        <activity
             android:name=".CreateGame"
             android:exported="false" />
         <activity
