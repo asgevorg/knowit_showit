@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "491000008053",
+    "firebase_url": "https://know-it-show-it-default-rtdb.firebaseio.com",
     "project_id": "know-it-show-it",
     "storage_bucket": "know-it-show-it.appspot.com"
   },
