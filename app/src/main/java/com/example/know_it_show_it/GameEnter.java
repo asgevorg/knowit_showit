@@ -60,12 +60,16 @@ public class GameEnter extends AppCompatActivity {
                 if(task.isSuccessful()){
                     DocumentSnapshot documentSnapshot = task.getResult();
                     if(documentSnapshot.exists()){
-                        Log.i("TTTTTTT", "worked");
+                        user_details();
                     }else{
                         Log.i("TTTTTTT", "not found");
                     }
                 }
             }
         });
+    }
+    private void user_details(){
+        Intent user_details = new Intent(this, User_details.class);
+        startActivity(user_details);
     }
 }
