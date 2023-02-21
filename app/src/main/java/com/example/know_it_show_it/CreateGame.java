@@ -45,12 +45,27 @@ public class CreateGame extends AppCompatActivity {
         create_game_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Session session = new Session(game_name.getText().toString(), generate_token());
-                session.setGamePin("0305");
+                String gamePin = generate_token();
+                User user = new User("Admin", gamePin, "1142245");
+                User users[] = {user};
+                String arr[] = {"hello world", "name"};
+                Session session = new Session(game_name.getText().toString(), gamePin, arr);
                 addSessionToFirestore(session);
             }
         });
     }
+    // OPTION AI checking the answers !
+        //TODO public or private game sessions, with others joining in from main page with available game list
+        //TODO friend request, registration, verification with mail, facebook
+    //TODO live players showing
+    //TODO Default settings, avatar showing
+    //TODO Notification on new game created by friend
+    //TODO settings
+    //TODO Inviting friends to gamE THROUGHOUT game enterinG
+        //TODO on public and private games game entering with approval or not
+    //TODO game idea -
+    //words are approved by AI Chaquopy - python plugin which is compatible with Java SDK's
+    //player rating list
 
     private String generate_token(){
         String game_id = String.format("%04d", rand.nextInt(10000));
