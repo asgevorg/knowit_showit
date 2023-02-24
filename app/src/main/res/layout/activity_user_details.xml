@@ -12,35 +12,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/game_pin_label"
-        android:id="@+id/game_pinBox"
-        android:layout_marginHorizontal="50dp"
-        app:endIconMode="clear_text"
-        app:counterEnabled="true"
-        app:counterMaxLength="4"
-        app:errorEnabled="true"
-        app:hintAnimationEnabled = "true">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/game_pin"
-            />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_width="match_parent"
-        app:layout_constraintTop_toBottomOf="@+id/game_pinBox"
-        android:layout_height="wrap_content"
         android:hint="@string/nickname"
         android:id="@+id/nickname_box"
         android:layout_marginHorizontal="50dp"
         app:endIconMode="clear_text"
         app:counterEnabled="true"
-        app:counterMaxLength="16"
+        app:counterMaxLength="12"
         app:errorEnabled="true"
         app:hintAnimationEnabled = "true">
 
@@ -51,18 +28,6 @@
             />
 
     </com.google.android.material.textfield.TextInputLayout>
-
-    <TextView
-        android:id="@+id/create_new_game_btn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nickname_box"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="70dp"
-        android:text="@string/create_game_label"
-        android:textAlignment="center"
-        />
 
     <Button
         app:layout_constraintStart_toStartOf="parent"
