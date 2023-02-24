@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,14 +28,17 @@ public class GameEnter extends AppCompatActivity {
     private FirebaseFirestore db;
     EditText enter_game;
     EditText nickname;
+    CollectionReference usersRef;
+    CollectionReference sessionsRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_enter);
 
-        //creating the Firestore instance
-        db = FirebaseFirestore.getInstance();
-
+        //creating fireStore collection instances, asenq enqan arag em sksel havaqel vorovhetev lavna keyboards
+        usersRef = FirebaseFirestore.getInstance().collection("users");
+        sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
     //Entering the game
         //getting all needed elements of the page
         enter_game = findViewById(R.id.game_pin);
@@ -82,7 +86,7 @@ public class GameEnter extends AppCompatActivity {
 
     private void checkSession(User user){
         boolean ans = false;
-        db.collection("sessions").document(user.getGamePin()).get()
+        sessionsRef.document(user.getGamePin()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -101,18 +105,18 @@ public class GameEnter extends AppCompatActivity {
     }
 
     private void enter_game(User user){
-        db.collection("users").add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.i("TTTT", "Added as " + user.getNickname());
+        usersRef.document(user.getNickname()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if(documentSnapshot.exists()){
+                        nickname.setError("User already in game");
+                    }else{
+                        usersRef.document(user.getNickname()).set(user);
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.i("TTTT", "Failed as " + user.getNickname());
-                    }
-                });
+                }
+            }
+        });
     }
 }
