@@ -110,9 +110,12 @@ public class CreateGame extends AppCompatActivity {
                         sessionsRef.document(session.getGamePin())
                                 .set(session);
                         User user = new User("admin", session.getGamePin(), "admin");
-//                        usersRef.document(user)
+                        Map<String, User> user_details =  new HashMap<>();
+                        user_details.put(user.getNickname(), user);
+
+                        usersRef.document(user.getGamePin()).set(user_details);
+
                         switch_to_user_list(user);
-//                        switch_to_main_game();
                     }
                 }
             }

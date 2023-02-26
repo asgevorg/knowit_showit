@@ -88,6 +88,12 @@ public class GameEnter extends AppCompatActivity {
         startActivity(create_game_activity);
     }
 
+    private void switch_user_list(User user){
+        Intent user_list = new Intent(this, users_list.class);
+        user_list.putExtra("details", new String[]{user.getGamePin(), user.getNickname()});
+        startActivity(user_list);
+    }
+
     private void checkSession(User user){
         sessionsRef.document(user.getGamePin()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -113,15 +119,14 @@ public class GameEnter extends AppCompatActivity {
                     if(data.exists()){
                         if(!data.contains(user.getNickname())){
                             user.push_to_DB();
+                            switch_user_list(user);
                         }
                         //Nickname found in DB session
                         else{
                             nickname.setError("Nickname already exists");
                         }
-                    }
-                    //no gamePin in users list
-                    else {
-
+                    }else{
+                        //??
                     }
                 }
             }
