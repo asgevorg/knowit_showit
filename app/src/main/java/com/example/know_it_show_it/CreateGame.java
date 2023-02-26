@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.SuccessContinuation;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -35,6 +36,8 @@ public class CreateGame extends AppCompatActivity {
     EditText game_name;
     Random rand = new Random();
     private FirebaseFirestore db;
+    private CollectionReference sessionsRef;
+    CollectionReference usersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,20 +46,28 @@ public class CreateGame extends AppCompatActivity {
 
         create_game_btn = findViewById(R.id.create_game);
         game_name = (EditText) findViewById(R.id.game_name);
-        db = FirebaseFirestore.getInstance();
+
+        sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
+        usersRef = FirebaseFirestore.getInstance().collection("users");
 
         create_game_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String gamePin = generate_token();
-                User user = new User("Admin", gamePin, "1142245");
-                User users[] = {user};
-                String arr[] = {"hello world", "name"};
-                Session session = new Session(game_name.getText().toString(), gamePin, arr);
+                User user = new User("Admin", gamePin, "admin");
+                Session session = new Session(game_name.getText().toString(), gamePin);
+
                 addSessionToFirestore(session);
             }
         });
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //deleting the game session from the firestore
+    }
+
     // OPTION AI checking the answers !
         //TODO public or private game sessions, with others joining in from main page with available game list
         //TODO friend request, registration, verification with mail, facebook
@@ -79,8 +90,15 @@ public class CreateGame extends AppCompatActivity {
         Intent main_activity = new Intent(this, MainActivity.class);
         startActivity(main_activity);
     }
+
+    private void switch_to_user_list(User user){
+        Intent user_list = new Intent(this, users_list.class);
+        user_list.putExtra("user", user);
+        startActivity(user_list);
+    }
+
     private void addSessionToFirestore(Session session) {
-        db.collection("sessions").document(session.getGamePin()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        sessionsRef.document(session.getGamePin()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
@@ -89,9 +107,12 @@ public class CreateGame extends AppCompatActivity {
                         session.setGamePin(generate_token());
                         addSessionToFirestore(session);
                     }else{
-                        db.collection("sessions").document(session.getGamePin())
+                        sessionsRef.document(session.getGamePin())
                                 .set(session);
-                        switch_to_main_game();
+                        User user = new User("admin", session.getGamePin(), "admin");
+//                        usersRef.document(user)
+                        switch_to_user_list(user);
+//                        switch_to_main_game();
                     }
                 }
             }

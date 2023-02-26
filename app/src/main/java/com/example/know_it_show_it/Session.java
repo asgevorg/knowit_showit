@@ -3,16 +3,16 @@ package com.example.know_it_show_it;
 public class Session {
     private String name;
     private String gamePin;
-    private String[] users;
+    private boolean isActive;
 
     public Session() {
         //for firestroe
     }
 
-    public Session(String name, String gamePin, String[] users) {
+    public Session(String name, String gamePin) {
         this.name = name;
         this.gamePin = gamePin;
-        this.users = users;
+        this.isActive = true;
     }
 
     public String getName() {

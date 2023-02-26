@@ -8,6 +8,7 @@
     android:padding="20dp"
     android:background="@color/purple">
     <TextView
+        android:id="@+id/gamePin_navbar_slot"
         android:layout_width="match_parent"
         android:gravity="left"
         android:text="#12312"

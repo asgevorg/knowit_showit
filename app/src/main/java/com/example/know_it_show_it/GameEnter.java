@@ -23,6 +23,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameEnter extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -44,7 +48,7 @@ public class GameEnter extends AppCompatActivity {
         enter_game = findViewById(R.id.game_pin);
         nickname = findViewById(R.id.nickname);
         Button join_game = findViewById(R.id.join_game);
-        Log.i("TTTT", "SS");
+
         //click listener on join game button
         join_game.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +59,7 @@ public class GameEnter extends AppCompatActivity {
                 String nickname_text = nickname.getText().toString();
                 //checking whether it is null or not
                 if(!gamePin.isEmpty() && !nickname_text.isEmpty()){
-                    User newUser = new User(nickname_text, gamePin, "001");
+                    User newUser = new User(nickname_text, gamePin, "user");
                     checkSession(newUser);
                 }
                 else{
@@ -85,35 +89,39 @@ public class GameEnter extends AppCompatActivity {
     }
 
     private void checkSession(User user){
-        boolean ans = false;
         sessionsRef.document(user.getGamePin()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             // Document exists, process the data
-                            Log.i("TTTT", "Enter Access");
                             enter_game(user);
                         } else {
-                            Log.i("TTTT", "Failure");
                             // Document does not exist
-                            enter_game.setError("");
-                            nickname.setError("");
+                            enter_game.setError("No such game found");
                         }
                     }
                 });
     }
 
     private void enter_game(User user){
-        usersRef.document(user.getNickname()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        this.usersRef.document(user.getGamePin()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if(documentSnapshot.exists()){
-                        nickname.setError("User already in game");
-                    }else{
-                        usersRef.document(user.getNickname()).set(user);
+                    DocumentSnapshot data = task.getResult();
+                    if(data.exists()){
+                        if(!data.contains(user.getNickname())){
+                            user.push_to_DB();
+                        }
+                        //Nickname found in DB session
+                        else{
+                            nickname.setError("Nickname already exists");
+                        }
+                    }
+                    //no gamePin in users list
+                    else {
+
                     }
                 }
             }
