@@ -23,7 +23,7 @@ public class User implements Serializable {
     private String role;
 
     private CollectionReference usersRef = FirebaseFirestore.getInstance().collection("users");
-
+    public User() {}
     public User(String nickname, String gamePin, String role) {
         this.nickname = nickname;
         this.gamePin = gamePin;

@@ -7,4 +7,11 @@
     tools:context=".users_list">
     <include layout="@layout/navbar"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/users_list_view"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/navbar"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
