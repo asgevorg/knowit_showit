@@ -1,6 +1,5 @@
 package com.example.know_it_show_it;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +8,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class mapAdapter extends RecyclerView.Adapter<mapAdapter.UserViewHolder>{
@@ -27,9 +25,12 @@ public class mapAdapter extends RecyclerView.Adapter<mapAdapter.UserViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull mapAdapter.UserViewHolder holder, int position) {
-        //Error not getting all
-//        Log.i("TTTT", mData.get(holder.nickname).toString());
-//        holder.nickname.setText(mData.get("nickname").toString());
+
+        //To add the stackoverflow solution
+//        Log.i("MAPADAPTER", mData.toString());
+        holder.nickname.setText(mData.get("aaaa").toString());
+
+
     }
 
     @Override
@@ -41,7 +42,6 @@ public class mapAdapter extends RecyclerView.Adapter<mapAdapter.UserViewHolder>{
         private TextView nickname;
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
-
             nickname = itemView.findViewById(R.id.user_list_item_nickname);
         }
     }

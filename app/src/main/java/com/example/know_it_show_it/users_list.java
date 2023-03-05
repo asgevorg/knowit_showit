@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -48,6 +49,7 @@ public class users_list extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
                     Map<String, Object> data = documentSnapshot.getData();
+                    Log.i("MAPADAPTER", data.toString());
                     // Create an instance of MyAdapter and pass the data to it
                     mapAdapter adapter = new mapAdapter(data);
                     // Set the adapter to your RecyclerView
