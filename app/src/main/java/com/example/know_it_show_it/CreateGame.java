@@ -24,6 +24,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,8 +114,7 @@ public class CreateGame extends AppCompatActivity {
                         Map<String, User> user_details =  new HashMap<>();
                         user_details.put(user.getNickname(), user);
 
-                        usersRef.document(user.getGamePin()).set(user_details);
-
+                        usersRef.document(user.getGamePin()).set(user_details, SetOptions.merge());
                         switch_to_user_list(user);
                     }
                 }
