@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".users_list">
     <include layout="@layout/navbar"/>
+    <include layout="@layout/loading_panel" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/users_list_view"

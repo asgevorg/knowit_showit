@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -24,8 +25,6 @@ public class users_list extends AppCompatActivity {
     private RecyclerView users_list_view;
     private DocumentReference usersGameDocRef;
     private CollectionReference sessionsRef;
-    FirestoreRecyclerAdapter adapter;
-    FirestoreRecyclerAdapter adapter1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +46,7 @@ public class users_list extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
+                    findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                     Map<String, Object> data = documentSnapshot.getData();
                     // Create an instance of MyAdapter and pass the data to it
                     MapAdapter adapter = new MapAdapter(data);

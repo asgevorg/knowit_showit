@@ -1,16 +1,25 @@
 package com.example.know_it_show_it;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.common.internal.Constants;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -22,15 +31,20 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 public class GameEnter extends AppCompatActivity {
     private FirebaseFirestore db;
-    EditText enter_game;
-    EditText nickname;
-    CollectionReference usersRef;
-    CollectionReference sessionsRef;
+    private EditText enter_game;
+    private EditText nickname;
+    private CollectionReference usersRef;
+    private CollectionReference sessionsRef;
 
+    private View LoadingPanel = findViewById(R.id.loadingPanel);
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_enter);
+        //Loading panel settings
+        LoadingPanel.setVisibility(View.GONE);
+        ViewCompat.setTranslationZ(findViewById(R.id.loadingPanel), 1);
 
         //creating fireStore collection instances, asenq enqan arag em sksel havaqel vorovhetev lavna keyboards
         usersRef = FirebaseFirestore.getInstance().collection("users");
@@ -45,18 +59,28 @@ public class GameEnter extends AppCompatActivity {
         join_game.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i("TTTT", "Clicked");
+                //turning on the loading panel for better UX
+                LoadingPanel.setVisibility(View.VISIBLE);
                 //getting the gamePin from inside of enter_game editText
                 String gamePin = enter_game.getText().toString();
                 String nickname_text = nickname.getText().toString();
-                //checking whether it is null or not
-                if (!gamePin.isEmpty() && !nickname_text.isEmpty()) {
-                    User newUser = new User(nickname_text, gamePin, "user");
-                    checkSession(newUser);
-                } else {
-                    enter_game.setError("Invalid pin");
-                    enter_game.setHint("Can't be empty");
+
+                if(isNetworkConnectionAvailable()){
+                    //checking whether it is null or not
+                    if (!gamePin.isEmpty() && !nickname_text.isEmpty()) {
+                        //creating a new us=er
+                        User newUser = new User(nickname_text, gamePin, "user");
+                        //checking if the session exists to continue entering
+                        checkSession(newUser);
+                        //turning off the loading panel
+                        findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+                    } else {
+                        enter_game.setError("Invalid pin");
+                        enter_game.setHint("Can't be empty");
+                    }
                 }
+
+
             }
         });
 
@@ -70,6 +94,8 @@ public class GameEnter extends AppCompatActivity {
                 switch_to_create_game();
             }
         });
+
+
     }
 
 
@@ -128,5 +154,37 @@ public class GameEnter extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void checkNetworkConnection(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("No internet Connection");
+        builder.setMessage("Please check your internet connection");
+        builder.setNegativeButton("close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    public boolean isNetworkConnectionAvailable(){
+        ConnectivityManager cm =
+                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnected();
+        if(isConnected) {
+            Log.d("Network", "Connected");
+            return true;
+        }
+        else{
+            checkNetworkConnection();
+            Log.d("Network","Not Connected");
+            return false;
+        }
     }
 }

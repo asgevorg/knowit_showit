@@ -6,7 +6,7 @@ public class Session {
     private boolean isActive;
 
     public Session() {
-        //for firestroe
+        //for firestore
     }
 
     public Session(String name, String gamePin) {
