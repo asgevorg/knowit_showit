@@ -8,29 +8,38 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class mapAdapter extends RecyclerView.Adapter<mapAdapter.UserViewHolder>{
+public class MapAdapter extends RecyclerView.Adapter<MapAdapter.UserViewHolder>{
     private Map<String, Object> mData;
-
-    public mapAdapter(Map<String, Object> data) {
+    public MapAdapter(Map<String, Object> data) {
         mData = data;
     }
     @NonNull
     @Override
-    public mapAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MapAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_list_item, parent, false);
         return new UserViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull mapAdapter.UserViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MapAdapter.UserViewHolder holder, int position) {
+        holder.setIsRecyclable(false);
+        holder.nickname.setText(getHashMapKeyFromIndex(mData, position));
+    }
 
-        //To add the stackoverflow solution
-//        Log.i("MAPADAPTER", mData.toString());
-        holder.nickname.setText(mData.get("aaaa").toString());
-
-
+    private String getHashMapKeyFromIndex(Map<String, Object> mData, int index) {
+        String key = null;
+        HashMap<String, Object> hs = (HashMap<String, Object>) mData;
+        int pos = 0;
+        for (Map.Entry<String, Object> entry : hs.entrySet()) {
+            if (index == pos) {
+                key = entry.getKey();
+            }
+            pos++;
+        }
+        return key;
     }
 
     @Override

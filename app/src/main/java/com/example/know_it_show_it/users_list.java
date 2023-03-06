@@ -16,7 +16,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class users_list extends AppCompatActivity {
@@ -49,16 +48,14 @@ public class users_list extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
                     Map<String, Object> data = documentSnapshot.getData();
-                    Log.i("MAPADAPTER", data.toString());
                     // Create an instance of MyAdapter and pass the data to it
-                    mapAdapter adapter = new mapAdapter(data);
+                    MapAdapter adapter = new MapAdapter(data);
                     // Set the adapter to your RecyclerView
                     users_list_view.setAdapter(adapter);
                 }
             }
         });
 
-        users_list_view.setHasFixedSize(true);
         users_list_view.setLayoutManager(new LinearLayoutManager(this));
     }
 }
