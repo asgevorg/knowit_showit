@@ -1,33 +1,19 @@
 package com.example.know_it_show_it;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.CycleInterpolator;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.SuccessContinuation;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 
@@ -36,9 +22,6 @@ public class CreateGame extends AppCompatActivity {
     Button create_game_btn;
     EditText game_name;
     Random rand = new Random();
-    private FirebaseFirestore db;
-    private CollectionReference sessionsRef;
-    CollectionReference usersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,43 +31,19 @@ public class CreateGame extends AppCompatActivity {
         create_game_btn = findViewById(R.id.create_game);
         game_name = (EditText) findViewById(R.id.game_name);
 
-        sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
-        usersRef = FirebaseFirestore.getInstance().collection("users");
-
         create_game_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String gamePin = generate_token();
-                User user = new User("Admin", gamePin, "admin");
-                Session session = new Session(game_name.getText().toString(), gamePin);
-
-                addSessionToFirestore(session);
+                Session session = new Session(game_name.getText().toString(), false);
+                if(isNetworkConnectionAvailable()){
+                    User user = session.AddSessionToFirestore();
+                    switch_to_user_list(user);
+                }
             }
         });
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //deleting the game session from the firestore
-    }
 
-    // OPTION AI checking the answers !
-        //TODO public or private game sessions, with others joining in from main page with available game list
-        //TODO friend request, registration, verification with mail, facebook
-    //TODO live players showing
-    //TODO Default settings, avatar showing
-    //TODO Notification on new game created by friend
-    //TODO settings
-    //TODO Inviting friends to gamE THROUGHOUT game enterinG
-        //TODO on public and private games game entering with approval or not
-    //TODO game idea -
-    //words are approved by AI Chaquopy - python plugin which is compatible with Java SDK's
-    //player rating list
-
-    private String generate_token(){
-        String game_id = String.format("%04d", rand.nextInt(10000));
-        return game_id;
+//
     }
 
     private void switch_to_main_game(){
@@ -93,32 +52,40 @@ public class CreateGame extends AppCompatActivity {
     }
 
     private void switch_to_user_list(User user){
-        Intent user_list = new Intent(this, users_list.class);
-        user_list.putExtra("user", user);
+        Intent user_list = new Intent(this, AdminUserListView.class);
+        user_list.putExtra("details", new String[]{user.getGamePin(), user.getNickname()});
         startActivity(user_list);
     }
 
-    private void addSessionToFirestore(Session session) {
-        sessionsRef.document(session.getGamePin()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+    public void checkNetworkConnection(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("No internet Connection");
+        builder.setMessage("Please check your internet connection");
+        builder.setNegativeButton("close", new DialogInterface.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if(documentSnapshot.exists()){
-                        session.setGamePin(generate_token());
-                        addSessionToFirestore(session);
-                    }else{
-                        sessionsRef.document(session.getGamePin())
-                                .set(session);
-                        User user = new User("admin", session.getGamePin(), "admin");
-                        Map<String, User> user_details =  new HashMap<>();
-                        user_details.put(user.getNickname(), user);
-
-                        usersRef.document(user.getGamePin()).set(user_details, SetOptions.merge());
-                        switch_to_user_list(user);
-                    }
-                }
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
         });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    public boolean isNetworkConnectionAvailable(){
+        ConnectivityManager cm =
+                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnected();
+        if(isConnected) {
+            Log.d("Network", "Connected");
+            return true;
+        }
+        else{
+            checkNetworkConnection();
+            Log.d("Network","Not Connected");
+            return false;
+        }
     }
 }

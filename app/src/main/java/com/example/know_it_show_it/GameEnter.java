@@ -5,7 +5,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,17 +16,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.common.internal.Constants;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 public class GameEnter extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -36,17 +31,19 @@ public class GameEnter extends AppCompatActivity {
     private CollectionReference usersRef;
     private CollectionReference sessionsRef;
 
-    private View LoadingPanel = findViewById(R.id.loadingPanel);
-    @SuppressLint("MissingInflatedId")
+    private View LoadingPanel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_enter);
+
+        LoadingPanel = findViewById(R.id.loadingPanel);
         //Loading panel settings
         LoadingPanel.setVisibility(View.GONE);
-        ViewCompat.setTranslationZ(findViewById(R.id.loadingPanel), 1);
+        ViewCompat.setTranslationZ(LoadingPanel, 1);
 
-        //creating fireStore collection instances, asenq enqan arag em sksel havaqel vorovhetev lavna keyboards
+        //creating fireStore collection instances
         usersRef = FirebaseFirestore.getInstance().collection("users");
         sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
         //Entering the game
@@ -60,7 +57,7 @@ public class GameEnter extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //turning on the loading panel for better UX
-                LoadingPanel.setVisibility(View.VISIBLE);
+//                LoadingPanel.setVisibility(View.VISIBLE);
                 //getting the gamePin from inside of enter_game editText
                 String gamePin = enter_game.getText().toString();
                 String nickname_text = nickname.getText().toString();
@@ -73,7 +70,7 @@ public class GameEnter extends AppCompatActivity {
                         //checking if the session exists to continue entering
                         checkSession(newUser);
                         //turning off the loading panel
-                        findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+                        LoadingPanel.setVisibility(View.GONE);
                     } else {
                         enter_game.setError("Invalid pin");
                         enter_game.setHint("Can't be empty");
@@ -106,7 +103,7 @@ public class GameEnter extends AppCompatActivity {
     }
 
     private void switch_user_list(User user) {
-        Intent user_list = new Intent(this, users_list.class);
+        Intent user_list = new Intent(this, UserListView.class);
         user_list.putExtra("details", new String[]{user.getGamePin(), user.getNickname()});
         startActivity(user_list);
     }
