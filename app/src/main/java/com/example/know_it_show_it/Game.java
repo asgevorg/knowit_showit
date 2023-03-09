@@ -12,6 +12,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 public class Game extends AppCompatActivity {
@@ -28,6 +29,10 @@ public class Game extends AppCompatActivity {
 //        gamePin_navbar_slot.setText("#" + UserDetailsArray[0]);
 
         ViewFlipper viewFlipper = findViewById(R.id.viewFlipper);
+        TextView LetterText = findViewById(R.id.LetterText);
+
+        RandomLetter randomLetter = new RandomLetter();
+
 // Set up flip animation
         Animation inAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation outAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
@@ -39,7 +44,11 @@ public class Game extends AppCompatActivity {
         frontLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String randLetter = Character.toString((char) randomLetter.GenerateRandomLetter());
+                Toast.makeText(getApplicationContext(),randLetter, Toast.LENGTH_SHORT).show();
                 viewFlipper.showNext();
+//                LetterText.setText();
+                LetterText.setVisibility(View.VISIBLE);
             }
         });
     }

@@ -7,7 +7,9 @@
     tools:context=".Game">
     <include layout="@layout/navbar" />
 
-    <LinearLayout
+
+
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,5 +25,14 @@
             <include layout="@layout/card_flip_back" />
 
         </ViewFlipper>
-    </LinearLayout>
+        <TextView
+            android:id="@+id/LetterText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="A"
+            android:textColor="@color/white"
+            android:textSize="50sp"
+            android:visibility="invisible"/>
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
