@@ -95,6 +95,7 @@ public class AdminUserListView extends AppCompatActivity {
                                     SessionData.put("active", true);
                                     //getting game into active mode
                                     sessionsRef.document(UserDetailsArray[0]).update(SessionData);
+                                    SwitchToMainGame();
                                 } else {
                                     Log.d(TAG, "No such document");
                                 }
@@ -158,5 +159,10 @@ public class AdminUserListView extends AppCompatActivity {
             Log.d("Network","Not Connected");
             return false;
         }
+    }
+    private void SwitchToMainGame(){
+        Intent user_list = new Intent(this, Game.class);
+        user_list.putExtra("details", this.UserDetailsArray);
+        startActivity(user_list);
     }
 }
