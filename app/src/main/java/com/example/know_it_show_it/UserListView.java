@@ -1,18 +1,24 @@
 package com.example.know_it_show_it;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -20,8 +26,15 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class UserListView extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -53,7 +66,26 @@ public class UserListView extends AppCompatActivity {
         usersGameDocRef = db.collection("users").document(UserDetailsArray[0]);
         sessionsRef = db.collection("sessions");
         //getting the data which is now available
+
+        sessionsRef.document(UserDetailsArray[0]).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if(data.get("active").toString() == "true"){
+                            SwitchToStart();
+                        }else{
+
+                        }
+                    }
+                }
+            }
+        });
         GetData();
+
         //looking for any data change in DB to get it -> LiveData
         usersGameDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -61,7 +93,6 @@ public class UserListView extends AppCompatActivity {
                 if (e != null) {
                     return;
                 }
-
                 if (snapshot != null && snapshot.exists()) {
                     LoadingPanel.setVisibility(View.VISIBLE);
                     GetData();
@@ -105,7 +136,12 @@ public class UserListView extends AppCompatActivity {
         });
     }
     private void SwitchToMainGame(){
-        Intent user_list = new Intent(this, Game.class);
-        startActivity(user_list);
+        Intent game = new Intent(this, Game.class);
+        game.putExtra("details", this.UserDetailsArray);
+        startActivity(game);
+    }
+    private void SwitchToStart(){
+        Intent game_enter = new Intent(this, GameEnter.class);
+        startActivity(game_enter);
     }
 }

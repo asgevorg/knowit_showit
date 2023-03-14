@@ -60,7 +60,7 @@ public class Session implements Serializable {
     }
 
     public User AddSessionToFirestore() {
-        User user = new User("admin", getGamePin(), "admin");
+        User user = new User("admin", getGamePin(), "admin", 0);
         sessionsRef.document(getGamePin()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

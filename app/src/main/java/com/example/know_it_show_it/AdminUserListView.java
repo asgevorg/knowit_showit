@@ -31,8 +31,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AdminUserListView extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -44,6 +50,8 @@ public class AdminUserListView extends AppCompatActivity {
     private View LoadingPanel;
     private String[] UserDetailsArray;
     private Button GameStart;
+
+    private CollectionReference usersRef = FirebaseFirestore.getInstance().collection("users");
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +104,7 @@ public class AdminUserListView extends AppCompatActivity {
                                     //getting game into active mode
                                     sessionsRef.document(UserDetailsArray[0]).update(SessionData);
                                     SwitchToMainGame();
+                                    setSeuqence();
                                 } else {
                                     Log.d(TAG, "No such document");
                                 }
@@ -164,5 +173,33 @@ public class AdminUserListView extends AppCompatActivity {
         Intent user_list = new Intent(this, Game.class);
         user_list.putExtra("details", this.UserDetailsArray);
         startActivity(user_list);
+    }
+
+    private void setSeuqence(){
+        usersRef.document(UserDetailsArray[0]).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+
+                        Map<String, Object> data = documentSnapshot.getData();
+
+                        Set<String> nicknames = data.keySet();
+                        List<String> playerIds = new ArrayList<>(nicknames);
+
+                        // shuffling the player order
+                        Collections.shuffle(playerIds);
+
+                        HashMap<String, List<String>> order_details = new HashMap<String, List<String>>();
+                        order_details.put("Order Details", playerIds);
+                        sessionsRef.document(UserDetailsArray[0]).set(order_details, SetOptions.merge());
+                    } else {
+
+                    }
+                }
+            }
+        });
+
     }
 }

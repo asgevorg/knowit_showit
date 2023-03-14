@@ -66,7 +66,7 @@ public class GameEnter extends AppCompatActivity {
                     //checking whether it is null or not
                     if (!gamePin.isEmpty() && !nickname_text.isEmpty()) {
                         //creating a new us=er
-                        User newUser = new User(nickname_text, gamePin, "user");
+                        User newUser = new User(nickname_text, gamePin, "user", 0);
                         //checking if the session exists to continue entering
                         checkSession(newUser);
                         //turning off the loading panel
