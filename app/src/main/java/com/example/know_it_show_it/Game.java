@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,9 +45,10 @@ public class Game extends AppCompatActivity {
     private CollectionReference sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
     private CollectionReference usersRef = FirebaseFirestore.getInstance().collection("users");
 
-    private long timeLeftInMillis = 60000;
+    private long timeLeftInMillis = 2000;
     private TextView LetterText;
 
+    private ProgressBar timerProgressBar;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +69,9 @@ public class Game extends AppCompatActivity {
         ViewFlipper viewFlipper = findViewById(R.id.viewFlipper);
 
 
-
+        //getting progressbar
+        timerProgressBar = findViewById(R.id.timerProgressBar);
+        timerProgressBar.setVisibility(View.GONE);
         //Setting up flip animation
         Animation inAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation outAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
@@ -85,11 +89,10 @@ public class Game extends AppCompatActivity {
                 viewFlipper.showNext();
                 LetterText.setText(rand);
                 LetterText.setVisibility(View.VISIBLE);
+                timerProgressBar.setVisibility(View.VISIBLE);
+                startTimer();
             }
         });
-
-//        startTimer();
-
 
     }
 
@@ -142,7 +145,7 @@ public class Game extends AppCompatActivity {
     private void updateTimerText() {
         int seconds = (int) (timeLeftInMillis / 1000);
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d", seconds);
-//        LetterText.setText(timeLeftFormatted);
+        LetterText.setText(timeLeftFormatted);
     }
 
 
