@@ -67,23 +67,6 @@ public class UserListView extends AppCompatActivity {
         sessionsRef = db.collection("sessions");
         //getting the data which is now available
 
-        sessionsRef.document(UserDetailsArray[0]).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) {
-
-                        Map<String, Object> data = documentSnapshot.getData();
-                        if(data.get("active").toString() == "true"){
-                            SwitchToStart();
-                        }else{
-
-                        }
-                    }
-                }
-            }
-        });
         GetData();
 
         //looking for any data change in DB to get it -> LiveData

@@ -24,6 +24,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Map;
+
 public class GameEnter extends AppCompatActivity {
     private FirebaseFirestore db;
     private EditText enter_game;
@@ -136,7 +138,23 @@ public class GameEnter extends AppCompatActivity {
                         if (data.exists()) {
                             if (!data.contains(user.getNickname())) {
                                 user.push_to_DB();
-                                switch_user_list(user);
+                                sessionsRef.document(user.getGamePin()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot documentSnapshot = task.getResult();
+                                            if (documentSnapshot.exists()) {
+
+                                                Map<String, Object> data = documentSnapshot.getData();
+                                                if(data.get("active").toString() == "true"){
+                                                    enter_game.setError("Game is active");
+                                                }else{
+                                                    switch_user_list(user);
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
                             }
                             //Nickname found in DB session
                             else {
