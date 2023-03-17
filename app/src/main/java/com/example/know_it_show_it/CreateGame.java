@@ -41,15 +41,8 @@ public class CreateGame extends AppCompatActivity {
                 }
             }
         });
-
-
-//
     }
 
-    private void switch_to_main_game(){
-        Intent main_activity = new Intent(this, MainActivity.class);
-        startActivity(main_activity);
-    }
 
     private void switch_to_user_list(User user){
         Intent user_list = new Intent(this, AdminUserListView.class);

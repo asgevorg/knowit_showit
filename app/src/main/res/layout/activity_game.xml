@@ -8,16 +8,13 @@
     <include layout="@layout/navbar" />
 
     <ProgressBar
-        android:id="@+id/timerProgressBar"
+        app:layout_constraintTop_toTopOf="@+id/navbar"
+        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/loading_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:max="40000"
-        android:progress="40000"
-        android:indeterminate="false"
-    />
+        android:max="100"
+        android:visibility="visible" />
 
     <FrameLayout
         android:layout_width="wrap_content"
@@ -25,7 +22,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/FrameLayout">
         <ViewFlipper
             android:id="@+id/viewFlipper"
             android:layout_width="match_parent"
@@ -45,4 +43,40 @@
             android:textSize="50sp"
             android:visibility="invisible"/>
     </FrameLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/FrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Your answer"
+        android:id="@+id/answerBox"
+        android:layout_marginHorizontal="50dp"
+        app:endIconMode="clear_text"
+        app:counterEnabled="true"
+        app:counterMaxLength="4"
+        app:errorEnabled="true"
+        app:hintAnimationEnabled = "true">
+
+    <com.google.android.material.textfield.TextInputEditText
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/answer"
+        android:inputType="textShortMessage"
+        />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/submitAnswer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

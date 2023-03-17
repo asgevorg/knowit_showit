@@ -47,5 +47,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     implementation 'com.firebaseui:firebase-ui-firestore:8.0.2'
     implementation 'net.sf.jwordnet:jwnl:1.4_rc3'
-    implementation files('src/main/assets/wordnet/dict')
 }

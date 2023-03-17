@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,22 +26,21 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import net.didion.jwnl.dictionary.Dictionary;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-
-public class Game extends AppCompatActivity {
+import java.util.Objects;
+public class Game extends AppCompatActivity{
     private String[] UserDetailsArray;
 
     private CollectionReference sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
@@ -48,10 +49,13 @@ public class Game extends AppCompatActivity {
     private long timeLeftInMillis = 2000;
     private TextView LetterText;
 
-    private ProgressBar timerProgressBar;
+    private ProgressBar loadingBar;
+    private EditText answerEditText;
+
+    private Button submitAnswer;
     @SuppressLint("MissingInflatedId")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
@@ -59,7 +63,6 @@ public class Game extends AppCompatActivity {
 
         Intent intent = getIntent();
         UserDetailsArray = intent.getStringArrayExtra("details");
-        Log.d("gamePin", UserDetailsArray[0]);
 
         //getting/setting the pin for the navbar
         TextView gamePin_navbar_slot = findViewById(R.id.gamePin_navbar_slot);
@@ -69,9 +72,6 @@ public class Game extends AppCompatActivity {
         ViewFlipper viewFlipper = findViewById(R.id.viewFlipper);
 
 
-        //getting progressbar
-        timerProgressBar = findViewById(R.id.timerProgressBar);
-        timerProgressBar.setVisibility(View.GONE);
         //Setting up flip animation
         Animation inAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation outAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
@@ -79,18 +79,66 @@ public class Game extends AppCompatActivity {
         viewFlipper.setOutAnimation(outAnimation);
         // Adding click listener to flip card
         RelativeLayout frontLayout = findViewById(R.id.frontLayout);
+
+        //getting loading bar
+        loadingBar = findViewById(R.id.loading_bar);
+        loadingBar.setVisibility(View.GONE);
+
+        //Getting the answer EditText
+        answerEditText = findViewById(R.id.answer);
+        answerEditText.setVisibility(View.GONE);
+        //Getting Button for submitAnswer
+        submitAnswer = findViewById(R.id.submitAnswer);
+        submitAnswer.setVisibility(View.GONE);
+
+
+
+        sessionsRef.document(UserDetailsArray[0]).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            // Document exists, process the data
+                            String userTurn = documentSnapshot.getString("player_turn");
+                            if(!Objects.equals(userTurn, UserDetailsArray[1])){
+                                viewFlipper.setVisibility(View.GONE);
+                            }else{
+                                viewFlipper.setVisibility(View.VISIBLE);
+                            }
+                        } else {
+                            // Document does not exist
+
+                        }
+                    }
+                });
+        submitAnswer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(answerEditText.getText() != null){
+                    if(EnglishWordChecker.isEnglishWord(answerEditText.getText().toString())){
+                        LetterText.setVisibility(View.GONE);
+                        answerEditText.setVisibility(View.GONE);
+                        submitAnswer.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+
+
+        //setting event for flipping animation
         frontLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Generate a random integer between 0 and 25
                 String rand = RandomLetter.GenerateRandomLetter();
-//                Toast.makeText(getApplicationContext(),rand, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),rand, Toast.LENGTH_SHORT).show();
 
                 viewFlipper.showNext();
                 LetterText.setText(rand);
                 LetterText.setVisibility(View.VISIBLE);
-                timerProgressBar.setVisibility(View.VISIBLE);
-                startTimer();
+                answerEditText.setVisibility(View.VISIBLE);
+                submitAnswer.setVisibility(View.VISIBLE);
+//                startTimer();
             }
         });
 
@@ -144,9 +192,9 @@ public class Game extends AppCompatActivity {
     // Call this method to update the TextView with the remaining time
     private void updateTimerText() {
         int seconds = (int) (timeLeftInMillis / 1000);
+        loadingBar.setProgress(seconds);
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d", seconds);
         LetterText.setText(timeLeftFormatted);
     }
-
 
 }

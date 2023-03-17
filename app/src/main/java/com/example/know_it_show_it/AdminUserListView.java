@@ -194,6 +194,12 @@ public class AdminUserListView extends AppCompatActivity {
                         HashMap<String, List<String>> order_details = new HashMap<String, List<String>>();
                         order_details.put("Order Details", playerIds);
                         sessionsRef.document(UserDetailsArray[0]).set(order_details, SetOptions.merge());
+
+                        Map<String, Object> turnState = new HashMap<>();
+                        Log.d("Turn ID", String.valueOf(playerIds.get(0)));
+                        turnState.put("player_turn", playerIds.get(0));
+                        turnState.put("player_actions_taken", new ArrayList<>());
+                        sessionsRef.document(UserDetailsArray[0]).set(turnState, SetOptions.merge());
                     } else {
 
                     }
