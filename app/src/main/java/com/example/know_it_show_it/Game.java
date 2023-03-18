@@ -154,7 +154,7 @@ public class Game extends AppCompatActivity{
                         submitAnswer.setVisibility(View.GONE);
 
                         String answer = answerEditText.getText().toString();
-                        if(answer.equals())
+
                     }
                 }
             }
