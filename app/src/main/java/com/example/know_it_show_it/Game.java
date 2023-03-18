@@ -1,7 +1,7 @@
 package com.example.know_it_show_it;
 
 import static android.content.ContentValues.TAG;
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,7 +13,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -23,31 +22,18 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import net.didion.jwnl.dictionary.Dictionary;
-
-import org.w3c.dom.Text;
-
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -107,21 +93,6 @@ public class Game extends AppCompatActivity{
         DefinitionText = findViewById(R.id.DefinitionText);
 
 
-//        UrbanDictionaryCallback.getRandomDefinition(new OnResponseListener<UrbanDictionaryDefinition>() {
-//            @Override
-//            public void onResponse(UrbanDictionaryDefinition response) {
-//                String word = response.getWord();
-//                String meaning = response.getDefinition();
-//                DefinitionText.setText(meaning.toString());
-//            }
-//
-//            @Override
-//            public void onError(String errorMessage) {
-//                // Handle the error
-//                Log.e(TAG, "Error: " + errorMessage);
-//            }
-//        });
-
         new Thread(() -> {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl("https://api.urbandictionary.com/")
@@ -131,16 +102,17 @@ public class Game extends AppCompatActivity{
             UrbanDictionaryAPIService service = retrofit.create(UrbanDictionaryAPIService.class);
 
             try {
-                Response<UrbanDictionaryResponse> response = service.getRandomDefinition(   ).execute();
+                Response<UrbanDictionaryResponse> response = service.getRandomDefinition("internet slang").execute();
 
                 if (response.isSuccessful()) {
-                    UrbanDictionaryDefinition definition = response.body().getDefinitions().get(0);
+                    UrbanDictionaryDefinition definition = response.body().getDefinitions().get(1);
                     String word = definition.getWord();
                     String meaning = definition.getDefinition();
+                    char[] letters = word.toCharArray();
 
                     runOnUiThread(() -> {
                         DefinitionText.setText(meaning);
-                        LetterText.setText(word);
+                        LetterText.setText(String.valueOf(letters[0]));
                     });
                 } else {
                     Log.e(TAG, "Error: " + response.code());
@@ -180,6 +152,9 @@ public class Game extends AppCompatActivity{
                         LetterText.setVisibility(View.GONE);
                         answerEditText.setVisibility(View.GONE);
                         submitAnswer.setVisibility(View.GONE);
+
+                        String answer = answerEditText.getText().toString();
+                        if(answer.equals())
                     }
                 }
             }

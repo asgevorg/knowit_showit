@@ -11,8 +11,6 @@ public interface UrbanDictionaryAPIService {
         Call<UrbanDictionaryResponse> getDefinitions(@Query("term") String term);
 
         @GET("v0/random")
-        Call<UrbanDictionaryResponse> getRandomDefinition();
-
-
+        Call<UrbanDictionaryResponse> getRandomDefinition(@Query("term") String SearchTerm);
 }
 
