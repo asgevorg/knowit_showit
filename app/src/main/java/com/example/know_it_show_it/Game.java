@@ -1,5 +1,6 @@
 package com.example.know_it_show_it;
 
+import static android.content.ContentValues.TAG;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,12 +35,23 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import net.didion.jwnl.dictionary.Dictionary;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class Game extends AppCompatActivity{
     private String[] UserDetailsArray;
 
@@ -53,6 +65,7 @@ public class Game extends AppCompatActivity{
     private EditText answerEditText;
 
     private Button submitAnswer;
+    private TextView DefinitionText;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -81,8 +94,8 @@ public class Game extends AppCompatActivity{
         RelativeLayout frontLayout = findViewById(R.id.frontLayout);
 
         //getting loading bar
-        loadingBar = findViewById(R.id.loading_bar);
-        loadingBar.setVisibility(View.GONE);
+//        loadingBar = findViewById(R.id.loading_bar);
+//        loadingBar.setVisibility(View.GONE);
 
         //Getting the answer EditText
         answerEditText = findViewById(R.id.answer);
@@ -90,6 +103,54 @@ public class Game extends AppCompatActivity{
         //Getting Button for submitAnswer
         submitAnswer = findViewById(R.id.submitAnswer);
         submitAnswer.setVisibility(View.GONE);
+        //getting the top definition text
+        DefinitionText = findViewById(R.id.DefinitionText);
+
+
+//        UrbanDictionaryCallback.getRandomDefinition(new OnResponseListener<UrbanDictionaryDefinition>() {
+//            @Override
+//            public void onResponse(UrbanDictionaryDefinition response) {
+//                String word = response.getWord();
+//                String meaning = response.getDefinition();
+//                DefinitionText.setText(meaning.toString());
+//            }
+//
+//            @Override
+//            public void onError(String errorMessage) {
+//                // Handle the error
+//                Log.e(TAG, "Error: " + errorMessage);
+//            }
+//        });
+
+        new Thread(() -> {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("https://api.urbandictionary.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            UrbanDictionaryAPIService service = retrofit.create(UrbanDictionaryAPIService.class);
+
+            try {
+                Response<UrbanDictionaryResponse> response = service.getRandomDefinition(   ).execute();
+
+                if (response.isSuccessful()) {
+                    UrbanDictionaryDefinition definition = response.body().getDefinitions().get(0);
+                    String word = definition.getWord();
+                    String meaning = definition.getDefinition();
+
+                    runOnUiThread(() -> {
+                        DefinitionText.setText(meaning);
+                        LetterText.setText(word);
+                    });
+                } else {
+                    Log.e(TAG, "Error: " + response.code());
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error: " + e.getMessage());
+            }
+        }).start();
+
+
 
 
 
@@ -130,11 +191,11 @@ public class Game extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 // Generate a random integer between 0 and 25
-                String rand = RandomLetter.GenerateRandomLetter();
-                Toast.makeText(getApplicationContext(),rand, Toast.LENGTH_SHORT).show();
+//                String rand = RandomLetter.GenerateRandomLetter();
+//                Toast.makeText(getApplicationContext(),rand, Toast.LENGTH_SHORT).show();
 
                 viewFlipper.showNext();
-                LetterText.setText(rand);
+//                LetterText.setText(rand);
                 LetterText.setVisibility(View.VISIBLE);
                 answerEditText.setVisibility(View.VISIBLE);
                 submitAnswer.setVisibility(View.VISIBLE);
