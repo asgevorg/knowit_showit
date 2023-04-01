@@ -11,8 +11,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -22,14 +24,24 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.example.know_it_show_it.databinding.LoadingPanelBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -38,7 +50,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class Game extends AppCompatActivity{
+public class Game extends AppCompatActivity {
     private String[] UserDetailsArray;
 
     private CollectionReference sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
@@ -51,10 +63,18 @@ public class Game extends AppCompatActivity{
     private EditText answerEditText;
 
     private Button submitAnswer;
-    private TextView DefinitionText;
+    protected TextView DefinitionText;
+
+    private static final String WORDNIK_API_KEY = "ry8nhtcy60qr04bosu5a9jry7n969eewk18vaqt0hbe6j02an";
+    private static final String WORDNIK_API_URL = "https://api.wordnik.com/v4/word.json/";
+    private static final String WORDNIK_API_ENDPOINT = "/definitions?limit=1&includeRelated=false&sourceDictionaries=all&useCanonical=false&includeTags=false&api_key=" + WORDNIK_API_KEY;
+
+    private String randomWord;
+    private View LoadingPanel;
+
     @SuppressLint("MissingInflatedId")
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
@@ -69,8 +89,6 @@ public class Game extends AppCompatActivity{
 
         //Getting sources for card flipping
         ViewFlipper viewFlipper = findViewById(R.id.viewFlipper);
-
-
         //Setting up flip animation
         Animation inAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation outAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
@@ -78,6 +96,8 @@ public class Game extends AppCompatActivity{
         viewFlipper.setOutAnimation(outAnimation);
         // Adding click listener to flip card
         RelativeLayout frontLayout = findViewById(R.id.frontLayout);
+
+        LoadingPanel = findViewById(R.id.loadingPanel);
 
         //getting loading bar
 //        loadingBar = findViewById(R.id.loading_bar);
@@ -91,38 +111,7 @@ public class Game extends AppCompatActivity{
         submitAnswer.setVisibility(View.GONE);
         //getting the top definition text
         DefinitionText = findViewById(R.id.DefinitionText);
-
-
-        new Thread(() -> {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://api.urbandictionary.com/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            UrbanDictionaryAPIService service = retrofit.create(UrbanDictionaryAPIService.class);
-
-            try {
-                Response<UrbanDictionaryResponse> response = service.getRandomDefinition("internet slang").execute();
-
-                if (response.isSuccessful()) {
-                    UrbanDictionaryDefinition definition = response.body().getDefinitions().get(1);
-                    String word = definition.getWord();
-                    String meaning = definition.getDefinition();
-                    char[] letters = word.toCharArray();
-
-                    runOnUiThread(() -> {
-                        DefinitionText.setText(meaning);
-                        LetterText.setText(String.valueOf(letters[0]));
-                    });
-                } else {
-                    Log.e(TAG, "Error: " + response.code());
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Error: " + e.getMessage());
-            }
-        }).start();
-
-
+        DefinitionText.setVisibility(View.GONE);
 
 
 
@@ -133,10 +122,14 @@ public class Game extends AppCompatActivity{
                         if (documentSnapshot.exists()) {
                             // Document exists, process the data
                             String userTurn = documentSnapshot.getString("player_turn");
-                            if(!Objects.equals(userTurn, UserDetailsArray[1])){
+                            if (!Objects.equals(userTurn, UserDetailsArray[1])) {
                                 viewFlipper.setVisibility(View.GONE);
-                            }else{
+                                LoadingPanel.setVisibility(View.VISIBLE);
+                            } else {
+                                LoadingPanel.setVisibility(View.GONE);
                                 viewFlipper.setVisibility(View.VISIBLE);
+                                new WordnikTask().execute();
+                                DefinitionText.setVisibility(View.VISIBLE);
                             }
                         } else {
                             // Document does not exist
@@ -147,13 +140,26 @@ public class Game extends AppCompatActivity{
         submitAnswer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(answerEditText.getText() != null){
-                    if(EnglishWordChecker.isEnglishWord(answerEditText.getText().toString())){
+                if (answerEditText.getText() != null) {
+                    if (EnglishWordChecker.isEnglishWord(answerEditText.getText().toString())) {
                         LetterText.setVisibility(View.GONE);
                         answerEditText.setVisibility(View.GONE);
                         submitAnswer.setVisibility(View.GONE);
 
                         String answer = answerEditText.getText().toString();
+                        if(answer.equals(randomWord)){
+                                AlertDialog.Builder builder = new AlertDialog.Builder(Game.this);
+                                builder.setTitle("Congratulations");
+                                builder.setMessage("The answer is right !");
+                                builder.setNegativeButton("close", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                                });
+                                AlertDialog alertDialog = builder.create();
+                                alertDialog.show();
+                        }
 
                     }
                 }
@@ -170,6 +176,7 @@ public class Game extends AppCompatActivity{
 //                Toast.makeText(getApplicationContext(),rand, Toast.LENGTH_SHORT).show();
 
                 viewFlipper.showNext();
+                LetterText.setText(String.valueOf(randomWord.charAt(0)));
 //                LetterText.setText(rand);
                 LetterText.setVisibility(View.VISIBLE);
                 answerEditText.setVisibility(View.VISIBLE);
@@ -180,57 +187,70 @@ public class Game extends AppCompatActivity{
 
     }
 
-    public void checkNetworkConnection(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("No internet Connection");
-        builder.setMessage("Please check your internet connection");
-        builder.setNegativeButton("close", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+    private class WordnikTask extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                randomWord = getRandomWord();
+                URL url = new URL(WORDNIK_API_URL + randomWord + WORDNIK_API_ENDPOINT);
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("GET");
+
+                int responseCode = con.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+
+                    in.close();
+
+                    JSONArray jsonArray = new JSONArray(response.toString());
+                    if (jsonArray.length() > 0) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(0);
+                        return jsonObject.getString("text");
+                    } else {
+                        return "No definition found";
+                    }
+                } else {
+                    return "Failed to get definition";
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Error: " + e.getMessage();
             }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    public boolean isNetworkConnectionAvailable(){
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
-        if(isConnected) {
-            Log.d("Network", "Connected");
-            return true;
         }
-        else{
-            checkNetworkConnection();
-            Log.d("Network","Not Connected");
-            return false;
+
+        @Override
+        protected void onPostExecute(String result) {
+            DefinitionText.setText(result + ": :"+randomWord);
         }
     }
 
-    private void startTimer() {
-        CountDownTimer timer = new CountDownTimer(timeLeftInMillis, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                timeLeftInMillis = millisUntilFinished;
-                updateTimerText();
+    private String getRandomWord() throws Exception {
+        URL url = new URL("https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&excludePartOfSpeech=proper-noun,proper-noun-plural&minCorpusCount=10000&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=" + WORDNIK_API_KEY);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+
+        int responseCode = con.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
             }
 
-            @Override
-            public void onFinish() {
-                LetterText.setText("DONE !");
-            }
-        }.start();
-    }
+            in.close();
 
-    // Call this method to update the TextView with the remaining time
-    private void updateTimerText() {
-        int seconds = (int) (timeLeftInMillis / 1000);
-        loadingBar.setProgress(seconds);
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d", seconds);
-        LetterText.setText(timeLeftFormatted);
+            JSONObject jsonObject = new JSONObject(response.toString());
+            return jsonObject.getString("word");
+        } else {
+            throw new Exception("Failed to get random word");
+        }
     }
-
 }

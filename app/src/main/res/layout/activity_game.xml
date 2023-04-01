@@ -6,15 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".Game">
     <include layout="@layout/navbar" />
-
+    <include layout="@layout/loading_panel" />
 
     <TextView
         android:id="@+id/DefinitionText"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/navbar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="20sp"
         android:text="Hello world"/>
 
     <FrameLayout
@@ -48,6 +51,8 @@
     <com.google.android.material.textfield.TextInputLayout
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="70dp"
+        android:layout_marginTop="30dp"
         app:layout_constraintTop_toBottomOf="@+id/FrameLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -56,7 +61,7 @@
         android:layout_marginHorizontal="50dp"
         app:endIconMode="clear_text"
         app:counterEnabled="true"
-        app:counterMaxLength="4"
+        app:counterMaxLength="10"
         app:errorEnabled="true"
         app:hintAnimationEnabled = "true">
 
