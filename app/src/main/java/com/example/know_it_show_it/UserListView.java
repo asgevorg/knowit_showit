@@ -27,10 +27,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firestore.v1.DocumentChange;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -93,7 +96,8 @@ public class UserListView extends AppCompatActivity {
 
                 if (snapshot != null && snapshot.exists()) {
                     Map<String, Object> data = snapshot.getData();
-                    if(data.get("active").toString() == "true"){
+
+                    if (data.get("active").toString() == "true") {
                         SwitchToMainGame();
                     }
                 }

@@ -12,6 +12,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Session implements Serializable {
@@ -19,6 +21,7 @@ public class Session implements Serializable {
     private String gamePin;
     private boolean isActive;
     private CollectionReference sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
+    private CollectionReference questionsRef = FirebaseFirestore.getInstance().collection("questions");
 
     public Session() {
         //for firestore
@@ -60,7 +63,7 @@ public class Session implements Serializable {
     }
 
     public User AddSessionToFirestore() {
-        User user = new User("admin", getGamePin(), "admin", 0);
+        User user = new User("admin", getGamePin(), "admin", (long) 0);
         sessionsRef.document(getGamePin()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -72,9 +75,19 @@ public class Session implements Serializable {
                     }else{
                         sessionsRef.document(getGamePin())
                                 .set(new Session(getName(), isActive(), getGamePin()));
+
+                        Map<String, String> randomObjectMap = new HashMap<>();
+                        randomObjectMap.put("id", "null");
+                        randomObjectMap.put("text", "null");
+                        randomObjectMap.put("correctAnswer", "null");
+                        Map<String, Object> update = new HashMap<>();
+                        update.put("randomQuestion", randomObjectMap);
+
+                        questionsRef.document(getGamePin()).set(update);
                         user.push_to_DB();
                     }
                 }
+
             }
         });
         return user;

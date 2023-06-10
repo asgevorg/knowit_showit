@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:id="@+id/navbar"
     android:padding="20dp"
-    android:background="@color/purple">
+    android:background="@color/branding_blue">
     <TextView
         android:id="@+id/gamePin_navbar_slot"
         android:layout_width="match_parent"

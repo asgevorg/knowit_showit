@@ -21,15 +21,19 @@ public class User implements Serializable {
     private String nickname;
     private String gamePin;
     private String role;
-    private int score;
+    private Long score;
 
     private CollectionReference usersRef = FirebaseFirestore.getInstance().collection("users");
     public User() {}
 
-    public User(String nickname, String gamePin, String role, int score) {
+    public User(String nickname, String gamePin, String role, Long score) {
         this.nickname = nickname;
         this.gamePin = gamePin;
         this.role = role;
+        this.score = score;
+    }
+    public User(String nickname, Long score){
+        this.nickname = nickname;
         this.score = score;
     }
 
@@ -45,11 +49,12 @@ public class User implements Serializable {
         this.nickname = nickname;
     }
 
-    public int getScore() {
+    public long getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+
+    public void setScore(long score) {
         this.score = score;
     }
 

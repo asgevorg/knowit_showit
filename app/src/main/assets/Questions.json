@@ -1,0 +1,381 @@
+{
+  "questions": [
+
+      {
+        "id": 1,
+        "text": "Animal with a long neck",
+        "correctAnswer": "Giraffe"
+      },
+      {
+        "id": 2,
+        "text": "Red fruit",
+        "correctAnswer": "Apple"
+      },
+      {
+        "id": 3,
+        "text": "Opposite of hot",
+        "correctAnswer": "Cold"
+      },
+      {
+        "id": 4,
+        "text": "Vehicle with two wheels",
+        "correctAnswer": "Bicycle"
+      },
+      {
+        "id": 5,
+        "text": "Bright celestial body at night",
+        "correctAnswer": "Moon"
+      },
+      {
+        "id": 6,
+        "text": "Color of the sun",
+        "correctAnswer": "Yellow"
+      },
+      {
+        "id": 7,
+        "text": "Flying insect that buzzes",
+        "correctAnswer": "Bee"
+      },
+      {
+        "id": 8,
+        "text": "Tool used for drawing",
+        "correctAnswer": "Pencil"
+      },
+      {
+        "id": 9,
+        "text": "Sport played with a round ball",
+        "correctAnswer": "Soccer"
+      },
+      {
+        "id": 10,
+        "text": "Opposite of big",
+        "correctAnswer": "Small"
+      },
+      {
+        "id": 11,
+        "text": "Pet that barks",
+        "correctAnswer": "Dog"
+      },
+      {
+        "id": 12,
+        "text": "Frozen water",
+        "correctAnswer": "Ice"
+      },
+      {
+        "id": 13,
+        "text": "Animal that meows",
+        "correctAnswer": "Cat"
+      },
+      {
+        "id": 14,
+        "text": "Object used for cutting",
+        "correctAnswer": "Knife"
+      },
+      {
+        "id": 15,
+        "text": "Sweet frozen treat",
+        "correctAnswer": "Ice cream"
+      },
+      {
+        "id": 16,
+        "text": "Color of grass",
+        "correctAnswer": "Green"
+      },
+      {
+        "id": 17,
+        "text": "Vehicle that floats on water",
+        "correctAnswer": "Boat"
+      },
+      {
+        "id": 18,
+        "text": "Number before two",
+        "correctAnswer": "One"
+      },
+      {
+        "id": 19,
+        "text": "Opposite of fast",
+        "correctAnswer": "Slow"
+      },
+      {
+        "id": 20,
+        "text": "Round citrus fruit",
+        "correctAnswer": "Orange"
+      },
+      {
+        "id": 21,
+        "text": "Color of the sky",
+        "correctAnswer": "Blue"
+      },
+      {
+        "id": 22,
+        "text": "Animal that hops",
+        "correctAnswer": "Rabbit"
+      },
+      {
+        "id": 23,
+        "text": "Number after five",
+        "correctAnswer": "Six"
+      },
+      {
+        "id": 24,
+        "text": "Opposite of day",
+        "correctAnswer": "Night"
+      },
+      {
+        "id": 25,
+        "text": "Vehicle with four wheels",
+        "correctAnswer": "Car"
+      },
+      {
+        "id": 26,
+        "text": "Baby cat",
+        "correctAnswer": "Kitten"
+      },
+      {
+        "id": 27,
+        "text": "Object used for eating",
+        "correctAnswer": "Spoon"
+      },
+      {
+        "id": 28,
+        "text": "Sweet yellow fruit",
+        "correctAnswer": "Banana"
+      },
+      {
+        "id": 29,
+        "text": "Opposite of old",
+        "correctAnswer": "Young"
+      },
+      {
+        "id": 30,
+        "text": "Musical instrument with keys",
+        "correctAnswer": "Piano"
+      },
+      {
+        "id": 31,
+        "text": "Animal that roars",
+        "correctAnswer": "Lion"
+      },
+      {
+        "id": 32,
+        "text": "Color of ripe strawberries",
+        "correctAnswer": "Red"
+      },
+      {
+        "id": 33,
+        "text": "Flying mammal",
+        "correctAnswer": "Bat"
+      },
+      {
+        "id": 34,
+        "text": "Number before ten",
+        "correctAnswer": "Nine"
+      },
+      {
+        "id": 35,
+        "text": "Opposite of tall",
+        "correctAnswer": "Short"
+      },
+      {
+        "id": 36,
+        "text": "Game played with a bat and ball",
+        "correctAnswer": "Baseball"
+      },
+      {
+        "id": 37,
+        "text": "Object used for drinking",
+        "correctAnswer": "Cup"
+      },
+      {
+        "id": 38,
+        "text": "Cold and white precipitation",
+        "correctAnswer": "Snow"
+      },
+      {
+        "id": 39,
+        "text": "Animal that quacks",
+        "correctAnswer": "Duck"
+      },
+      {
+        "id": 40,
+        "text": "Color of a lemon",
+        "correctAnswer": "Yellow"
+      },
+      {
+        "id": 41,
+        "text": "Insect with colorful wings",
+        "correctAnswer": "Butterfly"
+      },
+      {
+        "id": 42,
+        "text": "Number after twelve",
+        "correctAnswer": "Thirteen"
+      },
+      {
+        "id": 43,
+        "text": "Opposite of heavy",
+        "correctAnswer": "Light"
+      },
+      {
+        "id": 44,
+        "text": "Musical instrument with strings",
+        "correctAnswer": "Guitar"
+      },
+      {
+        "id": 45,
+        "text": "Animal with black and white stripes",
+        "correctAnswer": "Zebra"
+      },
+      {
+        "id": 46,
+        "text": "Object used for writing on a chalkboard",
+        "correctAnswer": "Chalk"
+      },
+      {
+        "id": 47,
+        "text": "Delicious frozen dessert on a stick",
+        "correctAnswer": "Popsicle"
+      },
+      {
+        "id": 48,
+        "text": "Color of the leaves in autumn",
+        "correctAnswer": "Orange"
+      },
+      {
+        "id": 49,
+        "text": "Number between twenty and twenty-two",
+        "correctAnswer": "Twenty-one"
+      },
+      {
+        "id": 50,
+        "text": "Opposite of up",
+        "correctAnswer": "Down"
+      },
+      {
+        "id": 51,
+        "text": "Cute and furry animal kept as a pet",
+        "correctAnswer": "Hamster"
+      },
+      {
+        "id": 52,
+        "text": "Object used for making calls",
+        "correctAnswer": "Phone"
+      },
+      {
+        "id": 53,
+        "text": "Sweetened liquid made from fruit",
+        "correctAnswer": "Juice"
+      },
+      {
+        "id": 54,
+        "text": "Color of a ripe tomato",
+        "correctAnswer": "Red"
+      },
+      {
+        "id": 55,
+        "text": "Flying insect that lights up at night",
+        "correctAnswer": "Firefly"
+      },
+      {
+        "id": 56,
+        "text": "Number after fifty-nine",
+        "correctAnswer": "Sixty"
+      },
+      {
+        "id": 57,
+        "text": "Opposite of wet",
+        "correctAnswer": "Dry"
+      },
+      {
+        "id": 58,
+        "text": "Musical instrument you can blow into",
+        "correctAnswer": "Flute"
+      },
+      {
+        "id": 59,
+        "text": "Animal with a long trunk",
+        "correctAnswer": "Elephant"
+      },
+      {
+        "id": 60,
+        "text": "Object used for playing catch",
+        "correctAnswer": "Ball"
+      },
+      {
+        "id": 61,
+        "text": "Small, shiny rock often used in jewelry",
+        "correctAnswer": "Diamond"
+      },
+      {
+        "id": 62,
+        "text": "Color of the ocean",
+        "correctAnswer": "Blue"
+      },
+      {
+        "id": 63,
+        "text": "Opposite of happy",
+        "correctAnswer": "Sad"
+      },
+      {
+        "id": 64,
+        "text": "Animal that hisses and slithers",
+        "correctAnswer": "Snake"
+      },
+      {
+        "id": 65,
+        "text": "Number between eight and ten",
+        "correctAnswer": "Nine"
+      },
+      {
+        "id": 66,
+        "text": "Opposite of inside",
+        "correctAnswer": "Outside"
+      },
+      {
+        "id": 67,
+        "text": "Object used for cleaning teeth",
+        "correctAnswer": "Toothbrush"
+      },
+      {
+        "id": 68,
+        "text": "Fruit with a hard shell and a seed inside",
+        "correctAnswer": "Coconut"
+      },
+      {
+        "id": 69,
+        "text": "Color of a ripe banana",
+        "correctAnswer": "Yellow"
+      },
+      {
+        "id": 70,
+        "text": "Insect with many legs",
+        "correctAnswer": "Spider"
+      },
+      {
+        "id": 71,
+        "text": "Vehicle used for flying in the sky",
+        "correctAnswer": "Airplane"
+      },
+      {
+        "id": 72,
+        "text": "Opposite of fast",
+        "correctAnswer": "Slow"
+      },
+      {
+        "id": 73,
+        "text": "Animal with a big trunk and floppy ears",
+        "correctAnswer": "Elephant"
+      },
+      {
+        "id": 74,
+        "text": "Color of a snowman",
+        "correctAnswer": "White"
+      },
+      {
+        "id": 75,
+        "text": "Number before twenty",
+        "correctAnswer": "Nineteen"
+      }
+    ]
+
+}

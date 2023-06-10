@@ -2,13 +2,18 @@ package com.example.know_it_show_it;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -27,23 +32,38 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.example.know_it_show_it.databinding.LoadingPanelBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Source;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 import retrofit2.Response;
@@ -56,6 +76,8 @@ public class Game extends AppCompatActivity {
     private CollectionReference sessionsRef = FirebaseFirestore.getInstance().collection("sessions");
     private CollectionReference usersRef = FirebaseFirestore.getInstance().collection("users");
 
+    private CollectionReference questionsRef = FirebaseFirestore.getInstance().collection("questions");
+
     private long timeLeftInMillis = 2000;
     private TextView LetterText;
 
@@ -64,13 +86,18 @@ public class Game extends AppCompatActivity {
 
     private Button submitAnswer;
     protected TextView DefinitionText;
-
-    private static final String WORDNIK_API_KEY = "ry8nhtcy60qr04bosu5a9jry7n969eewk18vaqt0hbe6j02an";
-    private static final String WORDNIK_API_URL = "https://api.wordnik.com/v4/word.json/";
-    private static final String WORDNIK_API_ENDPOINT = "/definitions?limit=1&includeRelated=false&sourceDictionaries=all&useCanonical=false&includeTags=false&api_key=" + WORDNIK_API_KEY;
-
     private String randomWord;
     private View LoadingPanel;
+    private Map<String, String> randomQuestion;
+    private TextInputLayout answerBox;
+
+    private RecyclerView recyclerView;
+
+    private UserAdapter userAdapter;
+    private TextView CurrentPlayer;
+
+    //Getting sources for card flipping
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -78,17 +105,25 @@ public class Game extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        CurrentPlayer = findViewById(R.id.CurrentPlayer);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        answerBox = findViewById(R.id.answerBox);
+
         LetterText = findViewById(R.id.LetterText);
 
         Intent intent = getIntent();
         UserDetailsArray = intent.getStringArrayExtra("details");
 
+        ViewFlipper viewFlipper = findViewById(R.id.viewFlipper);
+
         //getting/setting the pin for the navbar
         TextView gamePin_navbar_slot = findViewById(R.id.gamePin_navbar_slot);
+
         gamePin_navbar_slot.setText("#" + UserDetailsArray[0]);
 
-        //Getting sources for card flipping
-        ViewFlipper viewFlipper = findViewById(R.id.viewFlipper);
         //Setting up flip animation
         Animation inAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation outAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
@@ -99,9 +134,6 @@ public class Game extends AppCompatActivity {
 
         LoadingPanel = findViewById(R.id.loadingPanel);
 
-        //getting loading bar
-//        loadingBar = findViewById(R.id.loading_bar);
-//        loadingBar.setVisibility(View.GONE);
 
         //Getting the answer EditText
         answerEditText = findViewById(R.id.answer);
@@ -113,54 +145,63 @@ public class Game extends AppCompatActivity {
         DefinitionText = findViewById(R.id.DefinitionText);
         DefinitionText.setVisibility(View.GONE);
 
+        checkForCurrentPlay();
+
+        sessionsRef.document(UserDetailsArray[0]).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    return;
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    checkForCurrentPlay();
+                }
+            }
+        });
 
 
-        sessionsRef.document(UserDetailsArray[0]).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            // Document exists, process the data
-                            String userTurn = documentSnapshot.getString("player_turn");
-                            if (!Objects.equals(userTurn, UserDetailsArray[1])) {
-                                viewFlipper.setVisibility(View.GONE);
-                                LoadingPanel.setVisibility(View.VISIBLE);
-                            } else {
-                                LoadingPanel.setVisibility(View.GONE);
-                                viewFlipper.setVisibility(View.VISIBLE);
-                                new WordnikTask().execute();
-                                DefinitionText.setVisibility(View.VISIBLE);
-                            }
-                        } else {
-                            // Document does not exist
-
-                        }
-                    }
-                });
         submitAnswer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (answerEditText.getText() != null) {
-                    if (EnglishWordChecker.isEnglishWord(answerEditText.getText().toString())) {
-                        LetterText.setVisibility(View.GONE);
-                        answerEditText.setVisibility(View.GONE);
-                        submitAnswer.setVisibility(View.GONE);
+                    String userAnswer = String.valueOf(answerEditText.getText());
+                    userAnswer = userAnswer.replaceAll("\\s", "").toLowerCase();
 
-                        String answer = answerEditText.getText().toString();
-                        if(answer.equals(randomWord)){
-                                AlertDialog.Builder builder = new AlertDialog.Builder(Game.this);
-                                builder.setTitle("Congratulations");
-                                builder.setMessage("The answer is right !");
-                                builder.setNegativeButton("close", new DialogInterface.OnClickListener() {
+                    String rightAnswer = randomQuestion.get("correctAnswer");
+                    rightAnswer = rightAnswer.replaceAll("\\s", "").toLowerCase();
+
+                    LetterText.setVisibility(View.GONE);
+                    answerEditText.setVisibility(View.GONE);
+
+                    submitAnswer.setVisibility(View.GONE);
+
+                    if(userAnswer.equals(rightAnswer)){
+                            AlertDialog.Builder builder = new AlertDialog.Builder(Game.this);
+                            builder.setTitle("Congratulations");
+                            builder.setMessage("The answer is right !, +100");
+                            builder.setNegativeButton("close", new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                                });
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                            });
                                 AlertDialog alertDialog = builder.create();
-                                alertDialog.show();
-                        }
-
+                            alertDialog.show();
+                            changeUser();
+                            addPointToUser(100);
+                    }else{
+                        AlertDialog.Builder builder = new AlertDialog.Builder(Game.this);
+                        builder.setTitle("Ohh noo !");
+                        builder.setMessage("Do your best the next time )");
+                        builder.setNegativeButton("close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.show();
+                        changeUser();
                     }
                 }
             }
@@ -171,86 +212,230 @@ public class Game extends AppCompatActivity {
         frontLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Generate a random integer between 0 and 25
-//                String rand = RandomLetter.GenerateRandomLetter();
-//                Toast.makeText(getApplicationContext(),rand, Toast.LENGTH_SHORT).show();
-
                 viewFlipper.showNext();
-                LetterText.setText(String.valueOf(randomWord.charAt(0)));
-//                LetterText.setText(rand);
+                LetterText.setText(String.valueOf(randomQuestion.get("correctAnswer").charAt(0)));
                 LetterText.setVisibility(View.VISIBLE);
                 answerEditText.setVisibility(View.VISIBLE);
                 submitAnswer.setVisibility(View.VISIBLE);
-//                startTimer();
             }
         });
 
     }
 
-    private class WordnikTask extends AsyncTask<Void, Void, String> {
-        @Override
-        protected String doInBackground(Void... voids) {
-            try {
-                randomWord = getRandomWord();
-                URL url = new URL(WORDNIK_API_URL + randomWord + WORDNIK_API_ENDPOINT);
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                con.setRequestMethod("GET");
 
-                int responseCode = con.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuilder response = new StringBuilder();
+    private Map<String, String> getRandomQuestion(){
+                try {
+                    // Read the JSON file
+                    AssetManager assetManager = getAssets();
+                    InputStream inputStream = assetManager.open("Questions.json");
+                    int size = inputStream.available();
+                    byte[] buffer = new byte[size];
+                    inputStream.read(buffer);
+                    inputStream.close();
+                    String json = new String(buffer, StandardCharsets.UTF_8);
 
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
+                    // Parse the JSON data
+                    JSONObject jsonObject = new JSONObject(json);
+                    JSONArray questionsArray = jsonObject.getJSONArray("questions");
+
+                    // Get a random object from the questions array
+                    Random random = new Random();
+                    int randomIndex = random.nextInt(questionsArray.length());
+                    JSONObject randomObjectArray = questionsArray.getJSONObject(randomIndex);
+
+                    // Extract properties from the random object and store in a HashMap
+                    Map<String, String> randomObjectMap = new HashMap<>();
+                    for (int i = 0; i < randomObjectArray.length(); i++) {
+                        int id = randomObjectArray.getInt("id");
+                        String text = randomObjectArray.getString("text");
+                        String correctAnswer = randomObjectArray.getString("correctAnswer");
+
+                        // Add the properties to the HashMap
+                        randomObjectMap.put("id", Integer.toString(id));
+                        randomObjectMap.put("text", text);
+                        randomObjectMap.put("correctAnswer", correctAnswer);
+                        randomObjectMap.put("currentUser", UserDetailsArray[1]);
+
+                        Map<String, Object> update = new HashMap<>();
+                        update.put("randomQuestion", randomObjectMap);
+
+                        questionsRef.document(UserDetailsArray[0]).set(update, SetOptions.merge());
+//                        getOtherPlayerInfo();
                     }
 
-                    in.close();
+                    // Print the HashMap of the random object
+                    return randomObjectMap;
 
-                    JSONArray jsonArray = new JSONArray(response.toString());
-                    if (jsonArray.length() > 0) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(0);
-                        return jsonObject.getString("text");
-                    } else {
-                        return "No definition found";
-                    }
-                } else {
-                    return "Failed to get definition";
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Error: " + e.getMessage();
-            }
-        }
+                Map<String, String> randomObjectMap = new HashMap<>();
+                randomObjectMap.put("id", "null");
+                randomObjectMap.put("text", "null");
+                randomObjectMap.put("correctAnswer", "null");
+                return randomObjectMap;
+    }
+    private void changeUser(){
+        sessionsRef.document(UserDetailsArray[0]).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        List<String> OrderDetails = (List<String>) document.get("OrderDetails");
+                        String playerTurn = document.getString("player_turn");
 
-        @Override
-        protected void onPostExecute(String result) {
-            DefinitionText.setText(result + ": :"+randomWord);
-        }
+                        int playerTurnId = OrderDetails.indexOf(playerTurn);
+
+                        if(playerTurnId + 1 <= OrderDetails.toArray().length - 1){
+                            playerTurn = OrderDetails.get(playerTurnId + 1);
+                        }else{
+                            playerTurn = OrderDetails.get(0);
+                        }
+
+
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("player_turn", playerTurn);
+
+                        sessionsRef.document(UserDetailsArray[0]).update(updates);
+                        // Use the parameter value as needed
+                    } else {
+                        // Document does not exist
+                    }
+                }else{
+                    //fetching error
+                }
+            }
+        });
     }
 
-    private String getRandomWord() throws Exception {
-        URL url = new URL("https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&excludePartOfSpeech=proper-noun,proper-noun-plural&minCorpusCount=10000&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=" + WORDNIK_API_KEY);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+    private void checkForCurrentPlay(){
+        ViewFlipper viewFlipper = findViewById(R.id.viewFlipper);
+        Animation inAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
+        Animation outAnimation = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
+        viewFlipper.setInAnimation(inAnimation);
+        viewFlipper.setOutAnimation(outAnimation);
 
-        int responseCode = con.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
+        sessionsRef.document(UserDetailsArray[0]).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            // Document exists, process the data
+                            String userTurn = documentSnapshot.getString("player_turn");
+                            if (!Objects.equals(userTurn, UserDetailsArray[1])) {
+                                //currently is NOT his TURN
+//                                getOtherPlayerInfo();
+                                viewFlipper.setVisibility(View.GONE);
+                                LoadingPanel.setVisibility(View.GONE); //VISIBLE
+                                DefinitionText.setVisibility(View.VISIBLE);
+                                answerBox.setVisibility(View.GONE);
+                                recyclerView.setVisibility(View.VISIBLE);
+                                CurrentPlayer.setVisibility(View.VISIBLE);
+                                createTheRecyclerView();
 
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+                            } else {
+                                //Currently is his TURN
+                                CurrentPlayer.setVisibility(View.GONE);
+                                viewFlipper.setDisplayedChild(0);
+                                recyclerView.setVisibility(View.GONE);
+                                answerBox.setVisibility(View.VISIBLE);
+                                LoadingPanel.setVisibility(View.GONE);
+                                viewFlipper.setVisibility(View.VISIBLE);
+                                submitAnswer.setVisibility(View.VISIBLE);
+                                randomQuestion = getRandomQuestion();
+                                DefinitionText.setText(randomQuestion.get("text"));
+                                DefinitionText.setVisibility(View.VISIBLE);
+                                answerEditText.setText("");
+                            }
+                        } else {
+                            // Document does not exist
+                        }
+                    }
+                });
+    }
+
+    private void addPointToUser(int plusScore){
+        usersRef.document(UserDetailsArray[0]).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Map<String, Object> playerDetails = (Map<String, Object>) document.get(UserDetailsArray[1]);
+                        Long currentScore = (Long) playerDetails.get("score");
+                        currentScore += plusScore;
+                        playerDetails.put("score", currentScore);
+
+                        Map<String, Object> update = new HashMap<>();
+                        update.put(UserDetailsArray[1], playerDetails);
+
+                        usersRef.document(UserDetailsArray[0]).update(update);
+
+                    } else {
+                        // Document does not exist
+                    }
+                }else{
+
+                }
             }
+        });
+    }
 
-            in.close();
+    private void createTheRecyclerView(){
+        usersRef.document(UserDetailsArray[0]).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                List<User> userList = new ArrayList<>();
 
-            JSONObject jsonObject = new JSONObject(response.toString());
-            return jsonObject.getString("word");
-        } else {
-            throw new Exception("Failed to get random word");
-        }
+                if(task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Map<String, Object> playerDetails = (Map<String, Object>) document.getData();
+
+                        for (Map.Entry<String, Object> set : playerDetails.entrySet()) {
+                            Map<String, Object> inner = (Map<String, Object>) set.getValue();
+                            userList.add(new User(set.getKey(), (Long) inner.get("score")));
+                        }
+
+                        //recycler view for not your turn
+                        userAdapter = new UserAdapter(userList);
+                        recyclerView.setAdapter(userAdapter);
+
+                    } else {
+                        // Document does not exist
+                    }
+                }
+            }
+        });
+    }
+
+    public String[] getOtherPlayerInfo(){
+        String[] ExportData = new String[2];
+        questionsRef.document(UserDetailsArray[0]).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Map<String, Object> questionDetails = (Map<String, Object>) document.getData();
+                        Map<String, Object> randomQuestion = (Map<String, Object>) questionDetails.get("randomQuestion");
+                        String currentUser = (String) randomQuestion.get("currentUser");
+                        String activeQuestion = (String) randomQuestion.get("text");
+
+                        DefinitionText.setText(activeQuestion);
+                        CurrentPlayer.setText("Current player: " + currentUser);
+
+                        ExportData[0] = (currentUser);
+                        ExportData[1] = activeQuestion;
+                    } else {
+                        // Document does not exist
+                    }
+                }
+
+            }
+        });
+        return ExportData;
     }
 }

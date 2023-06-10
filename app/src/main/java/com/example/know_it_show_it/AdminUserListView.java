@@ -182,23 +182,29 @@ public class AdminUserListView extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
                     if (documentSnapshot.exists()) {
-
                         Map<String, Object> data = documentSnapshot.getData();
 
                         Set<String> nicknames = data.keySet();
                         List<String> playerIds = new ArrayList<>(nicknames);
+                        if (!playerIds.get(0).equals("admin")){
+                            playerIds.add(0, "admin");
 
-                        // shuffling the player order
-                        Collections.shuffle(playerIds);
+                            for (int i = 1; i < playerIds.size(); i++) {
+                                if(playerIds.get(i).equals("admin")){
+                                    playerIds.remove(i);
+                                }
+                            }
+
+                        }
+                        // shuffling the player order, shuffling commmented
+//                        Collections.shuffle(playerIds);
 
                         HashMap<String, List<String>> order_details = new HashMap<String, List<String>>();
-                        order_details.put("Order Details", playerIds);
+                        order_details.put("OrderDetails", playerIds);
                         sessionsRef.document(UserDetailsArray[0]).set(order_details, SetOptions.merge());
 
                         Map<String, Object> turnState = new HashMap<>();
-                        Log.d("Turn ID", String.valueOf(playerIds.get(0)));
-                        turnState.put("player_turn", playerIds.get(0));
-                        turnState.put("player_actions_taken", new ArrayList<>());
+                        turnState.put("player_turn", playerIds.get(1));
                         sessionsRef.document(UserDetailsArray[0]).set(turnState, SetOptions.merge());
                     } else {
 

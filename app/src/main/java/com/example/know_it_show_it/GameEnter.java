@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -68,7 +69,7 @@ public class GameEnter extends AppCompatActivity {
                     //checking whether it is null or not
                     if (!gamePin.isEmpty() && !nickname_text.isEmpty()) {
                         //creating a new us=er
-                        User newUser = new User(nickname_text, gamePin, "user", 0);
+                        User newUser = new User(nickname_text, gamePin, "user", (long) 0);
                         //checking if the session exists to continue entering
                         checkSession(newUser);
                         //turning off the loading panel
@@ -85,7 +86,7 @@ public class GameEnter extends AppCompatActivity {
 
         //creating game
         //getting needed element
-        TextView create_game = findViewById(R.id.create_new_game_btn);
+        FloatingActionButton create_game = findViewById(R.id.create_new_game_btn);
         //switching to create-game page
         create_game.setOnClickListener(new View.OnClickListener() {
             @Override
